@@ -14,3 +14,5 @@ Development version; no release or deployment claim.
 - Handle ALTER TABLE's action-specific metadata and internal temporary-catalog inspection without authorizing later temporary-database access.
 - Reject invalid public hashing byte budgets before opening a source file.
 - English/Portuguese documentation, precise supported-subset contract, packaging and read-only checks-only CI.
+
+* Qualify actual linked SQLite 3.51.3+ and provide a checksum-pinned SQLite 3.54.1 runtime build; preserve journal and transaction semantics.

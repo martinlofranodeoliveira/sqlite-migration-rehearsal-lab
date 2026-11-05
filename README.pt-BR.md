@@ -8,7 +8,7 @@ Ensaia SQL confiável em uma cópia SQLite consistente e descartável: verifica�
 
 ## Executar sem instalar
 
-Requer Python 3.13+ com SQLite 3.35+. Ambiente de referência: `python:3.13-slim-bookworm`. Execução, testes e demonstração usam somente a biblioteca padrão, sem rede, modelos, APIs, credenciais ou configuração no diretório pessoal. No diretório do projeto:
+Requer Python 3.13+ com SQLite 3.51.3+ realmente vinculado. O Dockerfile fornecido compila o runtime de referência qualificado. Execução, testes e demonstração usam somente a biblioteca padrão, sem rede, modelos, APIs, credenciais ou configuração no diretório pessoal. No diretório do projeto:
 
 ```sh
 python3 -m unittest discover -s tests -v
@@ -83,3 +83,7 @@ Relatórios/CLI não exibem SQL nem células, mas preservam identificadores e ha
 Códigos de saída: 0 sucesso esperado (inclusive falhas esperadas da demo); 1 falha do ensaio/demo/limite de saída; 2 argumentos, manifesto, configuração ou preparação externa inválidos. Sem telemetria ou implantação remota.
 
 Relatos de segurança: [reporte privado do GitHub](https://github.com/martinlofranodeoliveira/sqlite-migration-rehearsal-lab/security/advisories/new), quando disponível. Caso contrário, solicite um canal privado pelo [site oficial](https://lofranotecnologia.com.br).
+
+## Runtime SQLite
+
+Use a [compilação com checksum e qualificação por SQL](docs/sqlite-runtime.md). A aplicação exige SQLite 3.51.3+ realmente vinculado; a imagem fornecida usa 3.54.1. Compile com `docker build -t sqlite-migration-rehearsal-lab-sqlite .` e execute os comandos documentados de teste/demo com `docker run --rm --network none sqlite-migration-rehearsal-lab-sqlite <argv>`. Instalações nativas devem fornecer SQLite na faixa suportada.

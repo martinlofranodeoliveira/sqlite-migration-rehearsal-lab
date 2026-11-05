@@ -8,7 +8,7 @@ Rehearse trusted SQLite migration statements on a disposable consistent backup: 
 
 ## Run without installation
 
-Requires Python 3.13+ with SQLite 3.35+; the reference environment is `python:3.13-slim-bookworm`. Runtime, tests and demo use only the standard library and require no network, model, API, credentials or home-directory configuration. From the project directory:
+Requires Python 3.13+ with actual linked SQLite 3.51.3+; the supplied Dockerfile builds the qualified reference runtime. Runtime, tests and demo use only the standard library and require no network, model, API, credentials or home-directory configuration. From the project directory:
 
 ```sh
 python3 -m unittest discover -s tests -v
@@ -87,3 +87,7 @@ CLI/report summaries omit raw SQL and cell values but retain identifiers and fin
 CLI exit codes: 0 expected success (including expected demo failures), 1 failed rehearsal/demo/output budget, 2 invalid CLI/manifest/configuration or resource setup outside a rehearsal. No telemetry or remote deployment exists.
 
 Security reports: [GitHub private vulnerability reporting](https://github.com/martinlofranodeoliveira/sqlite-migration-rehearsal-lab/security/advisories/new) when available. If unavailable, request a private route through the [official homepage](https://lofranotecnologia.com.br).
+
+## SQLite runtime
+
+Use the [checksum-pinned build and SQL qualification](docs/sqlite-runtime.md). The application requires actual linked SQLite 3.51.3+; the supplied image uses 3.54.1. Build with `docker build -t sqlite-migration-rehearsal-lab-sqlite .`, then run the documented test/demo argv with `docker run --rm --network none sqlite-migration-rehearsal-lab-sqlite <argv>`. Native installations must independently provide the supported SQLite range.

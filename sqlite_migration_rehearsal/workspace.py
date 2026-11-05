@@ -11,6 +11,7 @@ from sqlite_migration_rehearsal.errors import (
     BaselineValidationError, ErrorCode, ForeignKeyEnforcementError,
     RehearsalPhase, ResourceLimitError, SanitizedDiagnostic,
 )
+from sqlite_migration_rehearsal.runtime import require_qualified_sqlite
 from sqlite_migration_rehearsal.models import (
     MAX_BASELINE_BYTES, MAX_COLUMNS, MAX_STATEMENT_BYTES, RehearsalLimits,
 )
@@ -113,12 +114,13 @@ def open_readonly_sqlite(path: Path) -> sqlite3.Connection:
     try:
         conn = sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True,
                                isolation_level=None, timeout=0.05, cached_statements=0)
+        require_qualified_sqlite(conn)
         conn.execute("PRAGMA query_only = ON")
         return conn
-    except (sqlite3.Error, OSError, ValueError):
+    except (sqlite3.Error, OSError, ValueError, RuntimeError):
         if conn is not None:
             conn.close()
-        raise _invalid("Cannot open baseline in SQLite read-only mode.") from None
+        raise _invalid("Cannot open baseline read-only with actual linked SQLite 3.51.3 or newer.") from None
 
 
 def configure_working_connection(conn, limits):

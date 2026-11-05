@@ -2,7 +2,7 @@
 
 Use synthetic fixtures only. Do not submit private client code, credentials, database contents or real personal data. Original contributions should be compatible with the MIT license.
 
-Python 3.13+ and SQLite 3.35+ are required. No installation or network is needed for checks from the project directory:
+Python 3.13+ and SQLite 3.51.3+ are required. No installation or network is needed for checks from the project directory:
 
 ```sh
 python3 -m unittest discover -s tests -v

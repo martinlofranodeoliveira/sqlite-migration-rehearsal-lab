@@ -30,6 +30,17 @@ class BackupTests(unittest.TestCase):
         self.db = create_users_basic_baseline(self.root / "source.sqlite3")
         self.original = self.db.read_bytes()
 
+    def test_old_linked_runtime_is_rejected_and_readonly_connection_closed(self):
+        for version in ("3.40.1", "3.46.1", "3.51.2"):
+            connection = sqlite3.connect(self.db.resolve().as_uri() + "?mode=ro", uri=True)
+            connection.create_function("sqlite_version", 0, lambda value=version: value)
+            with self.subTest(version=version), patch("sqlite_migration_rehearsal.workspace.sqlite3.connect", return_value=connection):
+                with self.assertRaises(RehearsalError):
+                    open_readonly_sqlite(self.db)
+            with self.assertRaises(sqlite3.ProgrammingError):
+                connection.execute("SELECT 1")
+            self.assertEqual(self.db.read_bytes(), self.original)
+
     def test_source_connection_is_read_only_and_destination_exclusive(self):
         conn = open_readonly_sqlite(self.db)
         try:

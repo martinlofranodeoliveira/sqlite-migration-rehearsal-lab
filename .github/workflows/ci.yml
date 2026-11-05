@@ -1,4 +1,4 @@
-name: checks
+name: SQLite runtime checks
 on:
   push:
   pull_request:
@@ -7,30 +7,29 @@ permissions:
 jobs:
   offline-checks:
     runs-on: ubuntu-latest
-    container: python:3.13-slim-bookworm
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Standard-library tests
-        run: python3 -I -m unittest discover -s tests -t . -v
-      - name: Offline demo
+      - name: Prepare checksum-pinned SQLite runtime
+        run: docker build --tag sqlite-migration-rehearsal-lab-ci .
+        timeout-minutes: 5
+      - name: Qualify linked SQLite and FTS5
+        run: docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 256 --memory 1g --cpus 2 --read-only --tmpfs /tmp:rw,exec,nosuid,nodev,size=512m sqlite-migration-rehearsal-lab-ci python3 tools/qualify_sqlite.py
+      - name: Standard-library regression and adversarial tests
+        run: docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 256 --memory 1g --cpus 2 --read-only --tmpfs /tmp:rw,exec,nosuid,nodev,size=512m sqlite-migration-rehearsal-lab-ci python3 -I -m unittest discover -s tests -t . -v
+      - name: Offline demos
         run: |
-          python3 -m sqlite_migration_rehearsal demo
-          python3 -m sqlite_migration_rehearsal demo --json
-  installation:
-    runs-on: ubuntu-latest
-    container: python:3.13-slim-bookworm
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-      - name: Prepare isolated installation using real build tooling
+          docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 256 --memory 1g --cpus 2 --read-only --tmpfs /tmp:rw,exec,nosuid,nodev,size=512m sqlite-migration-rehearsal-lab-ci python3 -m sqlite_migration_rehearsal demo
+          docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges --pids-limit 256 --memory 1g --cpus 2 --read-only --tmpfs /tmp:rw,exec,nosuid,nodev,size=512m sqlite-migration-rehearsal-lab-ci python3 -m sqlite_migration_rehearsal demo --json
+      - name: Install package into an isolated virtualenv
         run: |
-          python3 -m venv /tmp/rehearsal-install
-          /tmp/rehearsal-install/bin/python -m pip install .
-      - name: Installed package demo outside the checkout
-        working-directory: /tmp
-        run: /tmp/rehearsal-install/bin/python -I -m sqlite_migration_rehearsal demo --json
+          docker run --rm --cap-drop ALL --security-opt no-new-privileges --pids-limit 256 --memory 1g --cpus 2 --read-only --tmpfs /tmp:rw,exec,nosuid,nodev,size=512m sqlite-migration-rehearsal-lab-ci sh -euc '
+            cp -R /app /tmp/source
+            python3 -m venv /tmp/rehearsal-install
+            /tmp/rehearsal-install/bin/python -m pip --isolated install --index-url https://pypi.org/simple /tmp/source
+            cd /tmp
+            /tmp/rehearsal-install/bin/python -I -m sqlite_migration_rehearsal demo --json
+          '
+        timeout-minutes: 3
