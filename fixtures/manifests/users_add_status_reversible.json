@@ -1,0 +1,27 @@
+{
+  "schema_version": "0.1.0",
+  "migration_id": "2026_01_users_add_status_reversible",
+  "description": "Add non-null status column with default 'active' to users and restore exact schema and rows on down.",
+  "up_statements": [
+    "ALTER TABLE users ADD COLUMN status TEXT NOT NULL DEFAULT 'active'"
+  ],
+  "post_up_invariants": [
+    {
+      "id": "counts_2_active",
+      "description": "All 2 baseline users receive active status",
+      "query": "SELECT COUNT(*) FROM users WHERE status = 'active'",
+      "expected": {
+        "type": "integer",
+        "value": 2
+      }
+    }
+  ],
+  "down_statements": [
+    "CREATE TABLE users_down_staging (id INTEGER PRIMARY KEY, name TEXT)",
+    "INSERT INTO users_down_staging (id, name) SELECT id, name FROM users",
+    "DROP TABLE users",
+    "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)",
+    "INSERT INTO users (id, name) SELECT id, name FROM users_down_staging",
+    "DROP TABLE users_down_staging"
+  ]
+}

@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sqlite-migration-rehearsal-lab"
+version = "0.1.0"
+description = "Disposable SQLite up/down/up migration rehearsals with explicit invariants"
+readme = "README.md"
+requires-python = ">=3.13"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "Lofrano Tecnologia"}]
+dependencies = []
+classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Topic :: Database"]
+
+[project.urls]
+Homepage = "https://lofranotecnologia.com.br"
+Repository = "https://github.com/martinlofranodeoliveira/sqlite-migration-rehearsal-lab"
+Issues = "https://github.com/martinlofranodeoliveira/sqlite-migration-rehearsal-lab/issues"
+
+[project.scripts]
+sqlite-migration-rehearsal = "sqlite_migration_rehearsal.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["sqlite_migration_rehearsal*"]
+exclude = ["tests*"]

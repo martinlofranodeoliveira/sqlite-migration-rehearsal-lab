@@ -1,0 +1,23 @@
+{
+  "schema_version": "0.1.0",
+  "migration_id": "2026_03_users_failing_up_after_update",
+  "description": "Updates Ada first and then fails invariant verification, demonstrating full transaction rollback in the disposable copy.",
+  "up_statements": [
+    "UPDATE users SET name = 'Ada Updated' WHERE id = 1",
+    "ALTER TABLE users ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'"
+  ],
+  "post_up_invariants": [
+    {
+      "id": "require_two_active_users",
+      "description": "Expects 2 active users, which fails when default is pending",
+      "query": "SELECT COUNT(*) FROM users WHERE status = 'active'",
+      "expected": {
+        "type": "integer",
+        "value": 2
+      }
+    }
+  ],
+  "down_statements": [
+    "UPDATE users SET name = 'Ada' WHERE id = 1"
+  ]
+}
